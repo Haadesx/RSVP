@@ -11,19 +11,35 @@
      · Unlit states are drawn, not hidden.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/* Self-hosted: the product is local-first, and a slow or blocked webfont request
+   would hand a first-time visitor the system stack - precisely the "sterile and
+   cold" result this design exists to avoid. Provenance: src/app/fonts/PROVENANCE.md */
+@font-face {
+  font-family: 'Archivo';
+  src: url('./fonts/archivo-latin-var.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Literata';
+  src: url('./fonts/literata-latin-var.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark light;
 
   /* Warm graphite panel. Deliberately not near-black — this is anodised
      metal under a desk lamp, not a void. */
-  --panel:        #171512;
-  --panel-raised: #1E1B17;
-  --panel-sunk:   #110F0D;
-  --ink:          #E8E2D6;   /* warm bone */
-  --ink-dim:      #9A9184;
-  --ink-faint:    #75705E;   /* >=3:1 on panel; non-text and separators only */
-  --rule:         #302B24;
-  --rule-strong:  #453E34;
+  --panel:        #2A251E;   /* graphite: 16.5% lightness, R-B spread 12 - warm ON SCREEN */
+  --panel-raised: #342E25;
+  --panel-sunk:   #201C16;
+  --ink:          #E8E2D6;   /* warm bone, 11.78:1 */
+  --ink-dim:      #A69C8B;   /* 5.5:1 */
+  --ink-faint:    #85806D;   /* 4:1 - now safe for small canvas labels too */
+  --rule:         #453E34;
+  --rule-strong:  #5E5648;
 
   /* Amber phosphor. Reserved for live readings and the pivot. Nothing else. */
   --signal:       #FFA23D;
@@ -66,7 +82,7 @@ body {
   margin: 0;
   background: var(--panel);
   color: var(--ink);
-  font: 400 14px/1.55 var(--sans);
+  font: 400 15px/1.55 var(--sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
@@ -150,7 +166,7 @@ body {
 .masthead-sub {
   margin: 7px 0 0;
   font-family: var(--text);
-  font-size: 18px;
+  font-size: 15px;
   font-style: italic;
   color: var(--ink-dim);
 }
@@ -158,9 +174,9 @@ body {
 .cal-label { display: block; }
 .cal-value {
   display: block;
-  margin-top: 3px;
-  font-size: 18px;
-  font-weight: 500;
+  margin-top: 4px;
+  font-size: 22px;
+  font-weight: 600;
   color: var(--signal);
   font-variant-numeric: tabular-nums;
 }
@@ -175,7 +191,7 @@ body {
   gap: 16px;
 }
 .cat-head {
-  padding: 18px 0 9px;
+  padding: 16px 0 8px;
   border-bottom: 1px solid var(--rule);
 }
 .col-extent, .col-read { text-align: right; }
@@ -184,7 +200,7 @@ body {
 
 .cat-row {
   width: 100%;
-  padding: 15px 0;
+  padding: 10px 0;
   border: 0;
   border-bottom: 1px solid var(--rule);
   background: none;
@@ -195,7 +211,11 @@ body {
   transition: background-color 140ms var(--ease);
 }
 /* Hover lifts the row's own ground a hairline, no card, no shadow. */
-.cat-row:hover { background: var(--panel-raised); }
+.cat-row:hover:not(:disabled) { background: var(--panel-raised); }
+.cat-row:disabled { cursor: default; }
+.cat-row[data-status="loading"] { opacity: 0.55; }
+.cat-row[data-status="failed"] .cat-title { color: var(--ink-dim); text-decoration: line-through; }
+.cat-row[data-status="failed"] .cat-extent { color: var(--signal); }
 .cat-row:hover .cat-title { color: var(--signal); }
 
 /* Magnitude mark: diameter is document length, luminance is unread.
@@ -212,23 +232,23 @@ body {
 .cat-title {
   display: block;
   font-family: var(--text);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.01em;
   transition: color 140ms var(--ease);
 }
 .cat-meta {
   display: block;
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: 11px;
   color: var(--ink-dim);
   letter-spacing: 0.01em;
 }
 .cat-extent, .cat-read {
   text-align: right;
   font-variant-numeric: tabular-nums;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-dim);
 }
 .cat-read[data-progress="0"] { color: var(--ink-faint); }
@@ -242,8 +262,28 @@ body {
   font-style: italic;
 }
 
+.colophon {
+  /* Regression 3: the rule spans the full column like every other hairline in this
+     world; only the TEXT is held to a reading measure. A short rule read as a mistake. */
+  border-top: 1px solid var(--rule);
+  padding: 18px 0 clamp(28px, 6vh, 56px);
+}
+.colophon p {
+  /* Regression 1: at 14px against a 15px title, both Literata, the colophon sat at the
+     same optical rank as the catalogue and pulled the first viewport off the rows.
+     11px is the secondary register, shared with .cat-meta. */
+  margin: 0;
+  max-width: 58ch;
+  font-size: 11px;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  color: var(--ink-dim);
+  font-family: var(--text);
+}
+.colophon b { color: var(--ink); font-weight: 500; }
+
 .masthead-foot {
-  margin-top: 8px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -290,20 +330,23 @@ body {
   min-width: 0;
   text-align: center;
   font-family: var(--text);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-dim);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.readout-progress { font-size: 14px; color: var(--ink-dim); font-weight: 500; }
+.readout-progress { font-size: 15px; color: var(--ink-dim); font-weight: 500; }
 
 /* ── Engraved scales. Canvas so hairlines stay crisp at any device pixel
       ratio; a 1px CSS border on a 2x display is not a hairline. ───────────── */
 .scale { position: relative; flex: none; }
 .scale canvas { display: block; width: 100%; height: 100%; }
 .scale-progress { height: 22px; margin: 0 var(--gutter); }
-.scale-rate { height: 46px; margin: 0 var(--gutter); }
+.scale-rate { height: 58px; margin: 0 var(--gutter); }
+/* The rate scale is an input, not a readout: drag it. */
+.scale-rate canvas { cursor: ew-resize; touch-action: none; }
+.scale-rate canvas:focus-visible { outline-offset: 1px; }
 
 /* ── THE FIXATION ZONE ──────────────────────────────────────────────────────
       Nothing may render in here during playback. The index ticks are static:
@@ -332,7 +375,7 @@ body {
   margin: 0;
   text-align: center;
   font-family: var(--text);
-  font-size: clamp(14px, 1.15vw, 16px);
+  font-size: clamp(15px, 1.2vw, 17px);
   line-height: 1.75;
   color: var(--ink-dim);
   pointer-events: none;
@@ -447,6 +490,7 @@ body {
 }
 .key-primary[data-playing="true"] { color: var(--signal); border-color: var(--signal-dim); }
 
+.keys-touch { display: none; }
 .keys { margin: 0; text-align: center; text-transform: none; letter-spacing: 0.01em; }
 kbd {
   font: 500 11px/1 var(--sans);
@@ -466,6 +510,7 @@ kbd {
   .cat-head, .cat-row { grid-template-columns: 20px minmax(0, 1fr) 60px; }
   .col-read, .cat-read { display: none; }
   .keys { display: none; }              /* no keyboard to speak of */
+  .keys-touch { display: block; }       /* ...so name the touch affordance instead */
   .doc-title { display: none; }         /* the header must never overflow */
   .transport { flex-wrap: wrap; justify-content: center; }
   .scale-progress, .scale-rate { margin-inline: 10px; }

@@ -5,14 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>RSVP — a reading instrument</title>
     <meta name="description" content="A paced reader. It shows one word at a time at a rate it reports honestly, and it never moves the word you are looking at." />
-    <meta name="theme-color" content="#171512" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#E9E3D6" media="(prefers-color-scheme: light)" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="theme-color" content="#2A251E" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#DFE0DB" media="(prefers-color-scheme: light)" />
     <link rel="stylesheet" href="/src/app/style.css" />
   </head>
   <body>
@@ -88,6 +82,16 @@
             Plain text for now. PDF ingestion is specified and not yet built.
           </p>
         </footer>
+
+        <div class="colophon">
+          <p>
+            One word at a time, at a pace you set. The rate you ask for and the rate
+            actually delivered are drawn as two marks on one scale — <b>they should sit on
+            top of each other</b>. Most readers of this kind run 20–25% slower than the
+            number they display. This one will not make you read faster; what it does is
+            keep your place, fit almost no screen, and tell the truth about its own speed.
+          </p>
+        </div>
       </section>
 
       <!-- ══ READER ═══════════════════════════════════════════════════════════ -->
@@ -129,7 +133,8 @@
             <span class="skim" id="skim" hidden>skim</span>
           </div>
           <div class="scale scale-rate">
-            <canvas id="rate-scale"></canvas>
+            <canvas id="rate-scale" role="slider" tabindex="0" aria-label="Reading rate, words per minute"
+                    aria-valuemin="150" aria-valuemax="1000" aria-valuenow="300"></canvas>
           </div>
           <p class="rate-caption" id="delivered">delivered 300 · coincident</p>
         </div>
@@ -158,6 +163,7 @@
             <kbd>↑↓</kbd> rate <span class="sep">·</span>
             <kbd>S</kbd> skim
           </p>
+          <p class="keys keys-touch">drag the scale to set the pace · tap play to read</p>
         </footer>
       </section>
     </div>

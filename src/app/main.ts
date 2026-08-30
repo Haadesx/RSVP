@@ -44,6 +44,10 @@ interface Doc {
   tokens?: Token[];
   /** 0..1, how far the reader got. */
   progress: number;
+  /** Load outcome. A failed document must say so rather than sit there clickable. */
+  status?: 'ok' | 'loading' | 'failed';
+  /** Why it failed. Principle 4: name the problem, do not just mark it broken. */
+  error?: string;
 }
 
 const docs: Doc[] = [
@@ -89,10 +93,16 @@ const player = createPlayer({
 
 /* ── Library ─────────────────────────────────────────────────────────────── */
 
-/** Mark diameter carries document length, so the type does not have to. */
+/**
+ * Mark diameter carries document length, so the type does not have to. Anchored to the
+ * range a real library actually spans (250 words to 25,000) rather than to 1..10,000 —
+ * the earlier curve mapped 418 and 467 words to the same diameter, so the channel
+ * existed and conveyed nothing.
+ */
 function markSize(words: number): number {
-  const t = Math.min(1, Math.log10(Math.max(words, 1)) / 4); // 1 → 10,000 words
-  return 5 + Math.round(t * 9);
+  const lo = Math.log10(250), hi = Math.log10(25000);
+  const t = Math.min(1, Math.max(0, (Math.log10(Math.max(words, 1)) - lo) / (hi - lo)));
+  return 5 + Math.round(t * 11);
 }
 
 function renderLibrary(): void {
@@ -106,6 +116,8 @@ function renderLibrary(): void {
     row.type = 'button';
     row.className = 'cat-row';
     row.dataset.read = String(doc.progress >= 0.99);
+    row.dataset.status = doc.status ?? 'loading';
+    row.disabled = doc.status === 'failed' || doc.status === 'loading';
 
     const size = markSize(words || 500);
     row.innerHTML = `
@@ -114,33 +126,62 @@ function renderLibrary(): void {
         <span class="cat-title"></span>
         <span class="cat-meta"></span>
       </span>
-      <span class="cat-extent">${words ? words.toLocaleString() : '—'}</span>
+      <span class="cat-extent">${
+        doc.status === 'failed' ? 'unavailable' : words ? words.toLocaleString() : '…'
+      }</span>
       <span class="cat-read" data-progress="${doc.progress ? 1 : 0}">${
         doc.progress ? `${Math.round(doc.progress * 100)}%` : '—'
       }</span>`;
     // textContent, not innerHTML — titles are content, never markup.
     row.querySelector('.cat-title')!.textContent = doc.title;
-    row.querySelector('.cat-meta')!.textContent = doc.meta;
+    row.querySelector('.cat-meta')!.textContent =
+      doc.status === 'failed' && doc.error ? doc.error : doc.meta;
 
-    row.addEventListener('click', () => void open(doc));
+    row.addEventListener('click', () => { void open(doc); });
     li.append(row);
     catList.append(li);
   }
 }
 
 async function loadTokens(doc: Doc): Promise<void> {
-  if (doc.tokens) return;
-  if (doc.text == null) {
-    if (!doc.src) throw new Error('document has no source');
-    const res = await fetch(new URL(doc.src, document.baseURI));
-    if (!res.ok) throw new Error(`could not load ${doc.src}`);
-    doc.text = await res.text();
+  if (doc.tokens) { doc.status = 'ok'; return; }
+  doc.status = 'loading';
+  try {
+    if (doc.text == null) {
+      if (!doc.src) throw new Error('document has no source');
+      const res = await fetch(new URL(doc.src, document.baseURI));
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${doc.src}`);
+      // A missing document does NOT arrive as an error: a dev/preview server answers an
+      // unknown path with the SPA fallback at HTTP 200, so `res.ok` is true and the app
+      // would tokenize its own markup as prose and read it aloud at 300 wpm. Observed,
+      // not theorised - it produced a 1,095-word "document" during review.
+      //
+      // Sniff the CONTENT rather than the content-type header: the header is what the
+      // server claims, the body is what you actually got, and only the body distinguishes
+      // a text document from a fallback page.
+      const body = await res.text();
+      if (/^\s*(<!doctype\s+html|<html[\s>])/i.test(body)) {
+        throw new Error(`${doc.src} is missing — the server answered with a web page instead`);
+      }
+      doc.text = body;
+    }
+    doc.tokens = tokenize(doc.text);
+    doc.status = 'ok';
+  } catch (err) {
+    // Principle 4: never fail silently. The row says so, says why, and stops being clickable.
+    doc.status = 'failed';
+    doc.error = err instanceof Error ? err.message : String(err);
+    throw err;
   }
-  doc.tokens = tokenize(doc.text);
 }
 
 async function open(doc: Doc): Promise<void> {
-  await loadTokens(doc);
+  try {
+    await loadTokens(doc);
+  } catch {
+    renderLibrary();
+    return;
+  }
   current = doc;
   tokens = doc.tokens!;
   retime();
@@ -180,6 +221,12 @@ function render(): void {
   skimEl.hidden = wpm <= cfg.skim_threshold_wpm;
   progressEl.textContent = `${tokens.length ? player.index + 1 : 0} / ${tokens.length}`;
 
+  const atStart = player.index === 0;
+  for (const [id, off] of [['btn-word', atStart], ['btn-sent', atStart], ['btn-para', atStart]] as const) {
+    (el(id) as HTMLButtonElement).disabled = off;
+  }
+  btnPlay.disabled = tokens.length === 0;
+
   const playing = player.playing;
   stateEl.textContent = playing ? 'playing' : 'paused';
   btnPlay.dataset.playing = String(playing);
@@ -191,8 +238,9 @@ function render(): void {
   const drift = Math.abs(deliveredWpm - wpm);
   deliveredEl.textContent =
     drift < 1
-      ? `delivered ${Math.round(deliveredWpm)} · coincident`
-      : `delivered ${Math.round(deliveredWpm)} · ${drift > 0 ? '+' : ''}${Math.round(deliveredWpm - wpm)}`;
+      ? `set ${wpm} · delivered ${Math.round(deliveredWpm)} · marks coincident`
+      : `set ${wpm} · delivered ${Math.round(deliveredWpm)} · ${deliveredWpm > wpm ? '+' : ''}${Math.round(deliveredWpm - wpm)} adrift`;
+  rateCanvas.setAttribute('aria-valuenow', String(wpm));
 
   renderContext(playing);
 
@@ -204,7 +252,7 @@ function render(): void {
     delivered: deliveredWpm,
     majors: [300, 400, 450, 600, 720, 900],
     skimFrom: cfg.skim_threshold_wpm,
-    ink: css.getPropertyValue('--ink-faint').trim(),
+    ink: css.getPropertyValue('--ink-dim').trim(),
     rule: css.getPropertyValue('--rule-strong').trim(),
     signal: css.getPropertyValue('--signal').trim(),
   });
@@ -293,6 +341,28 @@ addEventListener('keydown', (e) => {
   e.preventDefault();
 });
 
+/**
+ * Drag the rate scale. Until now `setWpm` was reachable only from ArrowUp/Down, and the
+ * legend naming those keys is hidden below 720px — so on a phone, the device PRODUCT.md
+ * calls the product's best case, the pace could not be set at all. Mouse-only desktop
+ * users had no control either.
+ */
+function wpmFromClientX(clientX: number): number {
+  const r = rateCanvas.getBoundingClientRect();
+  const pad = 2; // matches padX in scales.ts, in CSS px
+  const t = (clientX - r.left - pad) / Math.max(r.width - pad * 2, 1);
+  const raw = cfg.min_wpm + Math.min(Math.max(t, 0), 1) * (cfg.max_wpm - cfg.min_wpm);
+  return Math.round(raw / 5) * 5;
+}
+rateCanvas.addEventListener('pointerdown', (e) => {
+  rateCanvas.setPointerCapture(e.pointerId);
+  setWpm(wpmFromClientX(e.clientX));
+  e.preventDefault();
+});
+rateCanvas.addEventListener('pointermove', (e) => {
+  if (rateCanvas.hasPointerCapture(e.pointerId)) setWpm(wpmFromClientX(e.clientX));
+});
+
 btnPlay.addEventListener('click', toggle);
 el('btn-word').addEventListener('click', () => player.seek(player.index - 1));
 el('btn-sent').addEventListener('click', () => player.seek(blockStart(player.index, SENTENCE_BREAK)));
@@ -329,7 +399,9 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
 calValue.textContent = `${cfg.target_wpm} set = ${cfg.target_wpm} delivered`;
 renderLibrary();
 await Promise.all(
-  docs.map(async (d) => { try { await loadTokens(d); } catch { /* row shows an em dash */ } }),
+  docs.map(async (d) => {
+    try { await loadTokens(d); } catch { /* status is already 'failed'; the row says so */ }
+  }),
 );
 renderLibrary();
 
