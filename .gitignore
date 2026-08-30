@@ -6,3 +6,5 @@ dist/
 *.log
 .cache/
 dist/
+.impeccable/review/
+.impeccable/build/

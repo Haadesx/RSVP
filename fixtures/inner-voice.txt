@@ -1,0 +1,15 @@
+The Inner Voice Is Not the Bottleneck
+
+Almost every speed-reading product rests on the same premise: there is a voice in your head pronouncing each word, it runs at mouth speed, and silencing it lets you read at eye speed. The premise is testable, it has been tested, and it does not hold.
+
+The decisive method is articulatory suppression. You ask someone to repeat a syllable aloud while reading, which occupies the speech machinery, and then measure what happens. If the inner voice were a tax on reading speed, occupying it should make reading faster. Baddeley, Eldridge and Lewis reported in 1981 that suppression markedly impaired the detection of anomalous words and word-order errors in prose, while a concurrent tapping task did not, so the effect was specific to speech rather than to general dual-task load. Their summary of the speed result is unambiguous: none of the manipulations influenced the speed with which the subjects performed the reading task.
+
+Speed did not move. Comprehension got worse. Baddeley's own reading is that subvocalisation allows the creation of a supplementary articulatory code particularly suitable for monitoring order information. The inner voice is not a tax; it is part of how a sentence is held together while it is parsed.
+
+The correlational evidence agrees. Vantieghem and Brysbaert tested 94 Dutch-speaking adults on both silent reading rate and maximum articulation speed, and found a correlation of minus .03. For reading aloud the same measure correlates at .28, so the instrument works; it simply does not touch silent reading. Fast talkers are not fast readers.
+
+The often-quoted figure that inner speech runs at 4,000 words per minute misreads its own source. Korba had subjects solve word puzzles and then retrospectively expand their compressed inner speech into full sentences. The 21 fastest averaged 3.90 elliptical words in a 0.62 second window, which is about 378 words per minute actually experienced. The 4,164 figure comes from counting the expanded reconstruction, which nobody read at any speed. Korba's own electromyography failed to correlate with either count.
+
+If not the eyes and not the mouth, what sets the ceiling? Kuperman and colleagues put silent reading at 269 wpm and the fastest listening rate that still supports comprehension at 270 wpm, in the same participants on matched texts, with a steep decline at 315. The bottleneck is the rate at which language can be turned into meaning, and it is indifferent to whether the words arrive through the eyes or the ears.
+
+None of this makes a paced reader worthless. It makes the honest claim a different one: not that you will read faster, but that you will read without losing your place, on any amount of screen, at a rate that is reported truthfully.

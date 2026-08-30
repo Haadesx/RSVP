@@ -2,28 +2,165 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RSVP Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>RSVP — a reading instrument</title>
+    <meta name="description" content="A paced reader. It shows one word at a time at a rate it reports honestly, and it never moves the word you are looking at." />
+    <meta name="theme-color" content="#171512" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#E9E3D6" media="(prefers-color-scheme: light)" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/src/app/style.css" />
   </head>
   <body>
-    <!-- Fixation zone. Nothing else may render inside .stage during playback. -->
-    <main class="stage">
-      <div class="word" id="word" aria-live="off"></div>
-      <div class="rule" aria-hidden="true"></div>
-    </main>
+    <!--
+      THESIS: A reading instrument that reports its own calibration. Every RSVP reader
+      misstates its rate by 20-25%; this one puts the rate you asked for and the rate it
+      delivers as two index marks on one engraved scale, where they must coincide. It
+      refuses the category arrangement: black void, huge word, red letter, grey chrome.
+      OWN-WORLD: A machined panel. Warm graphite (dark) or pale enamel (light), never
+      near-black; bone ink; one amber phosphor signal reserved for live readings and the
+      pivot. Engraved hairline tick scales carry every quantity; no progress bars, no
+      cards, no filled buttons. Unlit states are drawn, not hidden.
+      STORY: The reader sees a dense catalogue of documents, opens one, and reads at a
+      pace they set on a scale whose marks mean something. They believe the number.
+      FIRST VIEWPORT: Library. A ruled catalogue at 15px, hairline-separated rows, ledger
+      column heads in engraved caps. Left: a magnitude mark whose diameter is document
+      length and whose luminance is unread. Centre: title in Literata, author and source
+      beneath. Right: extent and progress as tabular figures. No cards, no thumbnails.
+      Primary action is the row itself.
+      FORM: The Instrument, candidate 5 of 7 on my resonance-ordered list, assigned by
+      concept-seed key rsvp-reader-2026, scope direction, mode operate.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish
+      review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+    -->
 
-    <!-- All status lives at the screen edges, far from the pivot. -->
-    <header class="hud hud-top">
-      <span id="wpm">250 wpm</span>
-      <span id="skim" class="skim" hidden>SKIM</span>
-      <span id="delivered" class="muted">delivered —</span>
-    </header>
-    <footer class="hud hud-bottom">
-      <span id="progress">0 / 0</span>
-      <span id="state">paused</span>
-      <span class="muted">space play/pause &middot; &larr; word &middot; shift+&larr; sentence &middot; alt+&larr; paragraph &middot; &uarr;&darr; speed &middot; s skim</span>
-    </footer>
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <g id="i-play"><path d="M7 4.5 18 12 7 19.5Z" /></g>
+        <g id="i-pause"><path d="M8.5 4.5v15M15.5 4.5v15" /></g>
+        <g id="i-word"><path d="M14.5 6.5 9 12l5.5 5.5" /></g>
+        <g id="i-sentence"><path d="M16.5 6.5 11 12l5.5 5.5M6.5 5.5v13" /></g>
+        <g id="i-para"><path d="M13 6.5 7.5 12 13 17.5M19 6.5 13.5 12 19 17.5" /></g>
+        <g id="i-back"><path d="M4.5 12h15M10.5 6l-6 6 6 6" /></g>
+        <g id="i-add"><path d="M12 5.5v13M5.5 12h13" /></g>
+      </defs>
+    </svg>
+
+    <div class="panel" id="panel">
+      <!-- ══ LIBRARY ══════════════════════════════════════════════════════════ -->
+      <section class="view view-library" id="library">
+        <header class="masthead">
+          <div class="masthead-id">
+            <h1>RSVP</h1>
+            <p class="masthead-sub">A reading instrument</p>
+          </div>
+          <div class="masthead-cal">
+            <span class="cal-label">calibration</span>
+            <span class="cal-value" id="cal-value">set = delivered</span>
+          </div>
+        </header>
+
+        <div class="catalogue" role="region" aria-labelledby="cat-head">
+          <h2 class="visually-hidden" id="cat-head">Documents</h2>
+          <div class="cat-head" aria-hidden="true">
+            <span class="col-mark"></span>
+            <span class="col-title">document</span>
+            <span class="col-extent">words</span>
+            <span class="col-read">read</span>
+          </div>
+          <ul class="cat-list" id="cat-list"></ul>
+          <p class="cat-empty" id="cat-empty" hidden>
+            Nothing loaded yet. Add a plain-text document to begin.
+          </p>
+        </div>
+
+        <footer class="masthead-foot">
+          <button class="engraved" id="add-doc" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#i-add" /></svg>
+            Add a document
+          </button>
+          <input type="file" id="file-input" accept=".txt,.md,text/plain" hidden />
+          <p class="foot-note">
+            Plain text for now. PDF ingestion is specified and not yet built.
+          </p>
+        </footer>
+      </section>
+
+      <!-- ══ READER ═══════════════════════════════════════════════════════════ -->
+      <section class="view view-reader" id="reader" hidden>
+        <!-- Top edge: identity + document progress as an engraved scale. -->
+        <header class="hud hud-top">
+          <button class="engraved ghost" id="to-library" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#i-back" /></svg>
+            Library
+          </button>
+          <span class="doc-title" id="doc-title"></span>
+          <span class="readout readout-progress" id="progress">0 / 0</span>
+        </header>
+
+        <!-- Document scale: minor tick per token band, major tick per paragraph. -->
+        <div class="scale scale-progress" aria-hidden="true">
+          <canvas id="progress-scale"></canvas>
+        </div>
+
+        <!-- ══ FIXATION ZONE ══ Nothing renders inside .stage during playback. ══ -->
+        <main class="stage">
+          <div class="word" id="word" aria-live="off"></div>
+          <div class="crosshair" aria-hidden="true"></div>
+          <!--
+            Context strip. Renders ONLY while paused — Sprint Reader's version is
+            correct precisely because it defaults to paused-only, and anything that
+            appears beside the word during playback forces the saccade this format
+            exists to remove.
+          -->
+          <p class="context" id="context" aria-hidden="true"></p>
+        </main>
+        <p class="visually-hidden" aria-live="polite" id="a11y-state">Paused.</p>
+
+        <!-- Bottom edge: the rate scale. Two index marks that must coincide. -->
+        <div class="rate">
+          <div class="rate-readout">
+            <span class="readout readout-rate" id="wpm">300</span>
+            <span class="readout-unit">wpm</span>
+            <span class="skim" id="skim" hidden>skim</span>
+          </div>
+          <div class="scale scale-rate">
+            <canvas id="rate-scale"></canvas>
+          </div>
+          <p class="rate-caption" id="delivered">delivered 300 · coincident</p>
+        </div>
+
+        <footer class="hud hud-bottom">
+          <div class="transport">
+            <button class="key" id="btn-para" type="button" title="Rewind one paragraph (Alt + Left)" aria-label="Rewind one paragraph">
+              <svg class="icon" aria-hidden="true"><use href="#i-para" /></svg>
+            </button>
+            <button class="key" id="btn-sent" type="button" title="Rewind one sentence (Shift + Left)" aria-label="Rewind one sentence">
+              <svg class="icon" aria-hidden="true"><use href="#i-sentence" /></svg>
+            </button>
+            <button class="key" id="btn-word" type="button" title="Rewind one word (Left)" aria-label="Rewind one word">
+              <svg class="icon" aria-hidden="true"><use href="#i-word" /></svg>
+            </button>
+            <button class="key key-primary" id="btn-play" type="button" aria-label="Play">
+              <svg class="icon" aria-hidden="true"><use href="#i-play" /></svg>
+              <span class="key-label" id="state">paused</span>
+            </button>
+          </div>
+          <p class="keys">
+            <kbd>space</kbd> play <span class="sep">·</span>
+            <kbd>←</kbd> word <span class="sep">·</span>
+            <kbd>⇧←</kbd> sentence <span class="sep">·</span>
+            <kbd>⌥←</kbd> paragraph <span class="sep">·</span>
+            <kbd>↑↓</kbd> rate <span class="sep">·</span>
+            <kbd>S</kbd> skim
+          </p>
+        </footer>
+      </section>
+    </div>
 
     <script type="module" src="/src/app/main.ts"></script>
   </body>

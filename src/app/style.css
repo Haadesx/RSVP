@@ -1,83 +1,495 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE INSTRUMENT — visual world for the RSVP reader.
+   Direction contract: see the comment at the top of index.html.
+
+   Rules this file exists to hold:
+     · The pivot glyph never moves. `1fr auto 1fr`, zero measurement.
+     · Nothing renders near the fixation point during playback. Chrome sits at
+       the edges; the only marks near the word are static index ticks that
+       never change state.
+     · Quantities are engraved tick scales, never filled bars.
+     · Unlit states are drawn, not hidden.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  color-scheme: dark;
-  --bg: #14161a;
-  --fg: #eceff4;
-  --dim: #7e8794;
-  --pivot: #e0603a;
-  --rule: #2b3038;
-  --word-size: clamp(34px, 7vw, 54px);
+  color-scheme: dark light;
+
+  /* Warm graphite panel. Deliberately not near-black — this is anodised
+     metal under a desk lamp, not a void. */
+  --panel:        #171512;
+  --panel-raised: #1E1B17;
+  --panel-sunk:   #110F0D;
+  --ink:          #E8E2D6;   /* warm bone */
+  --ink-dim:      #9A9184;
+  --ink-faint:    #75705E;   /* >=3:1 on panel; non-text and separators only */
+  --rule:         #302B24;
+  --rule-strong:  #453E34;
+
+  /* Amber phosphor. Reserved for live readings and the pivot. Nothing else. */
+  --signal:       #FFA23D;
+  --signal-dim:   #B87428;
+  --signal-glow:  rgb(255 162 61 / 0.16);
+
+  --word-size: clamp(38px, 7.4vw, 76px);
+  --gutter: clamp(20px, 4vw, 56px);
+  --edge: clamp(14px, 2.2vw, 28px);
+
+  --sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text: "Literata", Georgia, "Iowan Old Style", "Times New Roman", serif;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* { box-sizing: border-box; }
+/* Pale enamel instrument face — laboratory glassware, surveying levels,
+   darkroom timers. Same panel, read in daylight. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --panel:        #DFE0DB;   /* enamel, cool grey-green — not warm cream */
+    --panel-raised: #E9EAE5;
+    --panel-sunk:   #CFD1CA;
+    --ink:          #1C1E1C;
+    --ink-dim:      #52564F;
+    --ink-faint:    #74786E;
+    --rule:         #C2C5BD;
+    --rule-strong:  #A4A89D;
+    --signal:       #9A4413;   /* 4.93:1 on enamel */
+    --signal-dim:   #7E360C;
+    --signal-glow:  rgb(154 68 19 / 0.14);
+  }
+}
 
-html, body {
-  height: 100%;
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  background: var(--panel);
+  color: var(--ink);
+  font: 400 14px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
 }
 
-/* ── Fixation zone. Nothing renders here during playback except the word. ───────── */
+/* ── Browser surfaces. These ship with defaults belonging to no design
+      system; theme them from the palette. ─────────────────────────────────── */
+::selection { background: var(--signal-glow); color: var(--ink); }
+:focus-visible {
+  outline: 1.5px solid var(--signal);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+:where(input, textarea) { caret-color: var(--signal); }
+* { scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+  border: 3px solid var(--panel);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+::-webkit-scrollbar-track { background: transparent; }
+
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+
+.icon {
+  width: 20px; height: 20px; flex: none;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+}
+#i-play path { fill: currentColor; stroke-width: 1; }
+
+.panel { min-height: 100dvh; }
+.view { min-height: 100dvh; display: flex; flex-direction: column; }
+[hidden] { display: none !important; }
+
+/* ═══ ENGRAVED CHROME ═══════════════════════════════════════════════════════
+   Instrument labels: small, wide-tracked caps, cut into the panel rather than
+   printed on it. Used for every label in the interface. */
+.cal-label, .cat-head, .readout-unit, .rate-caption, .foot-note, .keys, .skim {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--ink-dim);
+}
+
+/* Readouts are live measurements: tabular figures so digits do not shift
+   width as they change, which on a rate readout is a real defect. */
+.readout {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+/* ═══ LIBRARY ═══════════════════════════════════════════════════════════════ */
+.view-library { padding: 0 var(--gutter); max-width: 1180px; margin: 0 auto; width: 100%; }
+
+.masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(40px, 8vh, 88px) 0 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.masthead h1 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.masthead-sub {
+  margin: 7px 0 0;
+  font-family: var(--text);
+  font-size: 18px;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+.masthead-cal { text-align: right; line-height: 1.35; }
+.cal-label { display: block; }
+.cal-value {
+  display: block;
+  margin-top: 3px;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+}
+
+.catalogue { padding-bottom: 8px; }
+
+
+.cat-head, .cat-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 82px 66px;
+  align-items: center;
+  gap: 16px;
+}
+.cat-head {
+  padding: 18px 0 9px;
+  border-bottom: 1px solid var(--rule);
+}
+.col-extent, .col-read { text-align: right; }
+
+.cat-list { list-style: none; margin: 0; padding: 0; }
+
+.cat-row {
+  width: 100%;
+  padding: 15px 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 140ms var(--ease);
+}
+/* Hover lifts the row's own ground a hairline, no card, no shadow. */
+.cat-row:hover { background: var(--panel-raised); }
+.cat-row:hover .cat-title { color: var(--signal); }
+
+/* Magnitude mark: diameter is document length, luminance is unread.
+   A non-typographic hierarchy channel, so the type does not have to carry it. */
+.mark {
+  display: block;
+  border-radius: 50%;
+  background: var(--ink);
+  margin-inline: auto;
+  transition: background-color 140ms var(--ease);
+}
+.cat-row[data-read="true"] .mark { background: none; box-shadow: inset 0 0 0 1.5px var(--ink-faint); }
+
+.cat-title {
+  display: block;
+  font-family: var(--text);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  transition: color 140ms var(--ease);
+}
+.cat-meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--ink-dim);
+  letter-spacing: 0.01em;
+}
+.cat-extent, .cat-read {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: var(--ink-dim);
+}
+.cat-read[data-progress="0"] { color: var(--ink-faint); }
+.cat-read:not([data-progress="0"]) { color: var(--signal); }
+
+.cat-empty {
+  padding: 56px 0;
+  text-align: center;
+  color: var(--ink-dim);
+  font-family: var(--text);
+  font-style: italic;
+}
+
+.masthead-foot {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 22px 0 clamp(28px, 6vh, 56px);
+  border-top: 1px solid var(--rule);
+}
+.foot-note { margin: 0; text-transform: none; letter-spacing: 0.01em; }
+
+/* Engraved control: a hairline cut into the panel. Never a filled button. */
+.engraved {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: none;
+  color: var(--ink);
+  font: 500 11px/1 var(--sans);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 140ms var(--ease), color 140ms var(--ease);
+}
+.engraved:hover { border-color: var(--signal); color: var(--signal); }
+.engraved .icon { width: 16px; height: 16px; }
+.engraved.ghost { border-color: transparent; padding-inline: 8px; color: var(--ink-dim); }
+.engraved.ghost:hover { color: var(--signal); }
+
+/* ═══ READER ════════════════════════════════════════════════════════════════ */
+.view-reader { position: relative; overflow: hidden; }
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: var(--edge) var(--gutter);
+  flex: none;
+}
+.hud-top { justify-content: space-between; }
+.doc-title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-family: var(--text);
+  font-size: 14px;
+  color: var(--ink-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.readout-progress { font-size: 14px; color: var(--ink-dim); font-weight: 500; }
+
+/* ── Engraved scales. Canvas so hairlines stay crisp at any device pixel
+      ratio; a 1px CSS border on a 2x display is not a hairline. ───────────── */
+.scale { position: relative; flex: none; }
+.scale canvas { display: block; width: 100%; height: 100%; }
+.scale-progress { height: 22px; margin: 0 var(--gutter); }
+.scale-rate { height: 46px; margin: 0 var(--gutter); }
+
+/* ── THE FIXATION ZONE ──────────────────────────────────────────────────────
+      Nothing may render in here during playback. The index ticks are static:
+      they never change state, so they never pull the eye. ─────────────────── */
 .stage {
-  position: fixed;
-  inset: 0;
+  flex: 1;
   display: grid;
   place-content: center;
   justify-items: center;
+  position: relative;
+  min-height: 0;
+  /* A desk lamp over a panel. Static, so it never pulls the eye; it pools
+     attention at the fixation point instead of leaving a void around it. */
+  background:
+    radial-gradient(58% 44% at 50% 46%, var(--panel-raised) 0%, transparent 72%);
 }
+
+/* Paused-only. Sprint Reader's context strip is correct BECAUSE it is paused-only;
+   anything rendering beside the word during playback defeats the mechanism. */
+.context {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + clamp(74px, 9vw, 128px));
+  transform: translateX(-50%);
+  width: min(74ch, 88vw);
+  margin: 0;
+  text-align: center;
+  font-family: var(--text);
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.75;
+  color: var(--ink-dim);
+  pointer-events: none;
+}
+.context b { font-weight: 500; color: var(--ink-dim); font-style: normal; }
+.context[hidden] { display: none !important; }
 
 .word {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto 1fr;   /* ← the whole pivot guarantee */
   align-items: baseline;
-  width: min(90vw, 900px);
-  font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  width: min(92vw, 940px);
+  font-family: var(--text);
   font-size: var(--word-size);
-  line-height: 1.15;
-  letter-spacing: 0.01em;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
   white-space: pre;
+  font-feature-settings: "kern" 1, "liga" 1;
 }
+.word .before { text-align: right; min-width: 0; }
+.word .after  { text-align: left;  min-width: 0; }
+.word .pivot  { flex-shrink: 0; color: var(--signal); }
 
-.before { text-align: right; min-width: 0; }
-.after  { text-align: left;  min-width: 0; }
-.pivot  { flex-shrink: 0; color: var(--pivot); }
-
-/* A single static hairline under the word. Static and aria-hidden, so it cannot pull a
-   saccade the way a toast or tooltip would; it is a resting mark, not a status area. */
-.rule {
-  width: min(90vw, 900px);
-  height: 1px;
-  margin-top: 0.6em;
-  background: var(--rule);
-}
-
-/* ── Status. Screen edges only, far from the fixation point. ────────────────────── */
-.hud {
-  position: fixed;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-  padding: 0.9rem 1.2rem;
-  color: var(--dim);
-  font-variant-numeric: tabular-nums;
+/* Index marks above and below the pivot column. Static — drawn once, never
+   updated — so they cost no attention while reading. */
+.crosshair {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
   pointer-events: none;
 }
+.crosshair::before, .crosshair::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 11px;
+  background: var(--rule-strong);
+  transform: translateX(-50%);
+}
+.crosshair::before { top: calc(50% - clamp(52px, 6vw, 88px)); }
+.crosshair::after  { bottom: calc(50% - clamp(52px, 6vw, 88px)); }
 
-.hud-top { top: 0; }
-.hud-bottom { bottom: 0; }
-.hud-bottom .muted { margin-left: auto; text-align: right; }
-.muted { color: #5b6472; }
-
-#wpm, #progress { color: var(--fg); }
-
+/* ── The rate scale. The signature: two index marks that must coincide. ───── */
+.rate { flex: none; padding-bottom: 4px; }
+.rate-readout {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 7px;
+  padding-bottom: 6px;
+}
+.readout-rate {
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1;
+  color: var(--signal);
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+.readout-unit { align-self: baseline; }
 .skim {
-  color: #14161a;
-  background: #d8a03a;
-  border-radius: 3px;
-  padding: 0.1rem 0.45rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  align-self: center;
+  margin-left: 8px;
+  padding: 3px 7px 2px;
+  border: 1px solid var(--signal-dim);
+  border-radius: 2px;
+  color: var(--signal);
+  letter-spacing: 0.2em;
+}
+.rate-caption {
+  margin: 6px 0 0;
+  text-align: center;
+  text-transform: none;
+  letter-spacing: 0.03em;
+}
+
+/* ── Transport ──────────────────────────────────────────────────────────── */
+.hud-bottom { flex-direction: column; gap: 14px; padding-top: 10px; }
+.transport { display: flex; align-items: center; gap: 8px; }
+
+.key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  background: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color 140ms var(--ease), border-color 140ms var(--ease);
+}
+.key:hover { color: var(--signal); border-color: var(--signal-dim); }
+.key:disabled { color: var(--ink-faint); border-color: var(--rule); cursor: not-allowed; }
+.key:disabled:hover { color: var(--ink-faint); border-color: var(--rule); }
+
+.key-primary {
+  width: auto;
+  padding: 0 18px 0 15px;
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+.key-label {
+  font: 500 11px/1 var(--sans);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.key-primary[data-playing="true"] { color: var(--signal); border-color: var(--signal-dim); }
+
+.keys { margin: 0; text-align: center; text-transform: none; letter-spacing: 0.01em; }
+kbd {
+  font: 500 11px/1 var(--sans);
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  padding: 2px 5px;
+  margin-right: 2px;
+}
+.sep { color: var(--ink-faint); padding: 0 3px; }
+
+/* ── Responsive. Phone is where the space claim is real, so the word keeps
+      its scale and the chrome gives way, not the other way round. ─────────── */
+@media (max-width: 720px) {
+  :root { --gutter: 18px; }
+  .cat-head, .cat-row { grid-template-columns: 20px minmax(0, 1fr) 60px; }
+  .col-read, .cat-read { display: none; }
+  .keys { display: none; }              /* no keyboard to speak of */
+  .doc-title { display: none; }         /* the header must never overflow */
+  .transport { flex-wrap: wrap; justify-content: center; }
+  .scale-progress, .scale-rate { margin-inline: 10px; }
+  .hud-bottom { padding-bottom: max(var(--edge), env(safe-area-inset-bottom)); }
+  .key { width: 48px; height: 48px; }   /* touch target */
+  .key-primary { width: auto; }
+  .masthead { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .masthead-cal { text-align: left; }
+}
+
+/* Wide desktop: the panel does not stretch to fill a 32in monitor. The word
+   holds a reading measure and the scales stay within arm's reach of it. */
+@media (min-width: 1500px) {
+  .view-reader > .hud, .view-reader > .scale, .view-reader > .rate {
+    max-width: 1280px;
+    margin-inline: auto;
+    width: 100%;
+  }
+  .scale-progress, .scale-rate { margin-inline: var(--gutter); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

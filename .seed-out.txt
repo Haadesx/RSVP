@@ -1,0 +1,124 @@
+DIRECTION CONCEPT SEED (key: rsvp-reader-2026; mode: operate; source: api; approved pool: c3b204a1eed6; 306/564 human-approved; rerun with --scope direction --mode operate --from rsvp-reader-2026 --candidate-count 7 to reproduce this roll against this catalog revision)
+ASSIGNED INDEX: 5
+  After ordering the grounded directions by resonance, build candidate
+  5 of your own grounded list; the assignment never points at a
+  challenger. The assignment is the roll, not a suggestion: your top-ranked
+  direction is what every run would ship, so the script decides which grounded
+  direction gets built. Each direction joins a durable visual system to a
+  concrete expression for the requested first surface, decided as one. It must
+  survive the current task plus navigation, quiet and dense content,
+  interaction and state, and a substantially different future surface. In an
+  attended run, present the assigned direction fully committed and offer
+  re-roll. You may add ONE card for your top-ranked grounded candidate when
+  it is not the assigned direction, kicker IMPECCABLE’S PICK, with an honest risk line
+  naming its familiarity; one pick card, never a ranked lineup, and the pick
+  never takes the lead position. When the assignment IS your top candidate,
+  there is no pick card. Re-roll yourself only
+  on named factual grounds, when the assignment cannot carry the product's
+  truth or task; taste is never grounds.
+  The assignment exists to refuse the model's ranking rut, never to outrank
+  the user or the brief. Never expose assignment metadata in user-facing labels.
+CHALLENGERS:
+  1. the seven-segment display family, bedside clocks, gas-station price totems, scoreboards, and microwave panels all speaking one eight-cell mask where unlit segments are designed too
+     SOURCE ID: signals-instruments-seven-segment-alarm-clock
+     CREATIVE SPARK: At 3am the bedroom hour hangs as four red digits; by noon the same alphabet quotes gasoline at two meters tall, and at the stadium the score slams from 98 to 100 with nothing sliding, segments simply dying and igniting.
+     SYSTEM GRAMMAR:
+       - Palette/material: lit segments in LED red, amber, or scoreboard green on matte near-black ground, unlit segments held as faint ghost cells; red glow owns the night register
+       - Type/composition: one eight-cell mask makes every glyph, digits ranked in fixed slots with the colon or decimal as its own cell; absence is drawn as deliberately as light
+       - Topology/navigation: the layout is a rigid mask of cells, from four bedside digits to a price totem's stack; place never moves, only which segments light
+       - Controls/state: modes cycle by held buttons, set digits blink while everything else holds; the flashing 12:00 of an unset clock is the canonical error state
+       - Responsive/motion: cells scale as whole units and never reflow mid-glyph; every change is an instant segment swap
+     WEB LEVERAGE: CSS grid and clip-path build a true segment mask with ghost cells, and a shared worker keeps blink phase synchronized across every open tab
+     QUALITY BAR: board https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock.webp · hero https://impeccable.style/worlds/cards/signals-instruments-seven-segment-alarm-clock-hero.webp
+  2. A worked queue built from a cracktro title screen: one bitmap face riding baselines over an emissive black void, where rank is depth, fields of grey dust drift behind the work at layered speeds, and nothing is ever enclosed by a rule or a box.
+     SOURCE ID: operate-c-cracktro-scroller-queue
+     CREATIVE SPARK: At 2am one ivory line of bitmap text sits dead still on a black screen while three fields of grey pinpricks drift behind it at different speeds, and a single amber caret blinks at the head of the line.
+     SYSTEM GRAMMAR:
+       - Palette/material: emissive black void, four dust neutrals ash to ivory, one signal amber; prose is ivory on void only; foreign images sit unretouched on the void, never tinted.
+       - Type/composition: one bitmap face at two sizes; all text rides baselines on a single unit; overlap allowed, enclosure never; no rules, boxes or dividers.
+       - Topology/navigation: layers stacked front to back; every baseline continues past both screen edges, so nothing is contained; navigating means pulling a layer forward.
+       - Controls/state: state is depth: brightness step plus letterspacing plus drift rate; the frontmost brightest widest item outranks all; a reversed glyph cell marks failure.
+       - Responsive/motion: only rear layers drift, one slow rate halved per step forward; the front plane holds still while read; narrow widths drop depth steps, not brightness steps.
+     WEB LEVERAGE: Every element declares an integer depth; one stylesheet maps depth to brightness step, letterspacing and drift rate off a single shared clock, and focus freezes the front plane to full stillness.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/operate-c-cracktro-scroller-queue.webp · hero https://impeccable.style/worlds/cards/operate-c-cracktro-scroller-queue-hero.webp
+  3. a wide silk cape threaded with hidden drawcord channels, where one pull transforms a flat plane into ribs, gathers, and a protective volume
+     SOURCE ID: textiles-weave-drape-fashion-drawcord-transforming-cape
+     CREATIVE SPARK: The cape begins as a black semicircle; one gold cord is pulled and the cloth rises into a pleated shell around the shoulders.
+     SYSTEM GRAMMAR:
+       - Palette/material: matte black silk as ground, one gold drawcord as accent and control, channel stitching in graphite, gathered shadow rendered in slate
+       - Type/composition: narrow tailored grotesk with wide tracking like topstitching, labels riding the cord channels, the semicircle's radius ruling all alignment
+       - Topology/navigation: Trace cord channel, gathered region, anchor, and complete silhouette through each transformation.
+       - Controls/state: Pull, lock, release, and compare with flat, gathering, shaped, tensioned, and relaxed states.
+       - Responsive/motion: Offer a small set of named silhouettes on phones and let users advance transformations stepwise.
+     WEB LEVERAGE: A constraint-driven cloth model can demonstrate functional transformation while static pattern and pose views remain complete.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-drawcord-transforming-cape.webp · hero https://impeccable.style/worlds/cards/textiles-weave-drape-fashion-drawcord-transforming-cape-hero.webp
+  4. an alphabet storm, where letters condense into words, break into weather, and reshape the landscape according to grammar
+     SOURCE ID: dream-surreal-impossible-worlds-alphabet-storm
+     CREATIVE SPARK: Black letters gather into CLOUD, burst into rain, and carve the word RIVER across white ground; changing one vowel turns the current into a field of silver ravens.
+     SYSTEM GRAMMAR:
+       - Palette/material: paper white ground, storm-letter black as both body ink and weather mass, one silver flash for words mid-transformation, rain gray for spent grammar
+       - Type/composition: a single monumental grotesk behaving as matter, kerning loosening into wind, words breaking across lines as literal weather fronts on an open field
+       - Topology/navigation: Travel between letter fronts, word formations, grammatical forces, and the landscapes they produce.
+       - Controls/state: Type, split, conjugate, and recombine language while physical consequences remain reversible.
+       - Responsive/motion: Use one word-weather event per phone viewport and preserve readable text throughout transformation.
+     WEB LEVERAGE: Text parsing, procedural particles, and semantic rules turn typed language into deterministic weather with accessible narrative descriptions.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-alphabet-storm.webp · hero https://impeccable.style/worlds/cards/dream-surreal-impossible-worlds-alphabet-storm-hero.webp
+  5. a Japanese contemporary high-density site, where tiny type, boxed modules, and utility-red accents pack far more onto one screen than a Western grid would dare
+     SOURCE ID: japanese-high-density-web
+     CREATIVE SPARK: Dozens of boxed modules tile a single scroll, each ruled with hairlines and headed by a small red tab; prices, badges, and nav rails crowd in at tiny sizes, and nothing wastes a pixel of the packed grid.
+     SYSTEM GRAMMAR:
+       - Palette/material: bright white ground, dense black text, a signal utility-red for tabs and prices, cool grays for module borders and fills
+       - Type/composition: a compact gothic sans at small sizes with tight leading; a mosaic of ruled rectangular modules, each with its own small header tab, packed edge to edge.
+       - Topology/navigation: Move by scanning the dense module mosaic, by a persistent multi-row nav rail, and by expandable category accordions in a left rail.
+       - Controls/state: Hovering a module raises its border and reveals secondary actions; tabs switch content in place; badges mark new, sale, and limited states.
+       - Responsive/motion: motion is minimal and functional, and reduced-motion keeps only instant state swaps.
+     WEB LEVERAGE: Build the module mosaic as a dense CSS grid with named template areas and a strict hairline border system, so hundreds of small blocks tile without the whitespace inflation of a default SaaS grid.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/japanese-high-density-web.webp · hero https://impeccable.style/worlds/cards/japanese-high-density-web-hero.webp
+  6. a celestial star atlas chart, magnitudes as ranked dot sizes on a coordinate sphere, constellation lines and mythic figures faint beneath the data
+     SOURCE ID: notation-diagram-systems-star-atlas
+     CREATIVE SPARK: Under a red flashlight at two in the morning, a cold thumb traces from the chart's inked dots up to the actual sky, and Orion's belt agrees with the paper exactly.
+     SYSTEM GRAMMAR:
+       - Palette/material: deep navy chart ground with chalk-white stars, red-flashlight amber for annotations, the object under the eye ringed in that same night-vision red
+       - Type/composition: light serif italic names the constellations, small tabular figures label coordinates, dot diameter carries the hierarchy the type declines to
+       - Topology/navigation: the sky splits into overlapping charts with matched edges, coordinates gridline the field and an index of named objects points into each plate
+       - Controls/state: importance is dot diameter on a fixed magnitude ramp, variable objects wear distinct rings, the mythic figure layer fades up only on request
+       - Responsive/motion: each plate crops around its brightest anchors at small sizes; panning drifts like slow sidereal motion
+     WEB LEVERAGE: Canvas plots thousands of magnitude-scaled points with smooth zoom between chart plates.
+     QUALITY BAR: board https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas.webp · hero https://impeccable.style/worlds/cards/notation-diagram-systems-star-atlas-hero.webp
+Fuse each challenger before judging it: the challenger supplies the form
+  and its system grammar, the product supplies every fact, and clarity wins
+  conflicts. Weigh the fused result against the assigned direction on exactly
+  two axes, audience identification and product clarity. Losing to strong
+  grounded material is a valid outcome; beating a thin or tool-monoculture
+  list is the point. A fused challenger that wins both axes becomes the build.
+  Close the weighing with a verdict per challenger, decided before any
+  borrowing is considered: wins (beats the assigned direction on both axes),
+  competitive (holds one axis), or declined (loses both). A declined
+  challenger is not spent: name the one discipline of its system the assigned
+  direction lacks, and raise the assigned direction to match before
+  presenting it. A donation transfers ambition and system discipline, never
+  the challenger's clothes; one world owns the page. Write each raise as its
+  own named line on the presented direction, and carry every verdict, kept
+  line, and raise into the decision page payload.
+When you can view images, open the QUALITY BAR board and hero for any
+challenger you weigh seriously and for the world you build. They exist as a
+craft bar, the finish level and commitment the build is expected to reach,
+never as a mockup to copy; your surface serves this product, not that render.
+PRODUCT.md and explicit incumbent brand commitments constrain every direction.
+The seed never chooses exact colors, fonts, tokens, or a user preference, and
+it never permits the world and first surface to be selected independently.
+The CREATIVE SPARK is a complete visual system, not a theme or decorative
+reference. Translate every supplied system rule into the product: palette and
+material, type and composition, topology, controls and states, and adaptation.
+Keep the source's visible character, scale, rhythm, and interaction instead of
+reducing vivid grammar to generic nouns. When the source is already a credible
+interface language, commit to it across navigation, content, controls, and
+states. Otherwise keep a literal carrier only when it becomes functional.
+Ambitious motion, spatial media, or interaction is welcome when it strengthens
+the product without weakening semantics, performance, or fallback behavior.
+AFTER THE CHOICE, run exactly one command and follow what it prints (do not suppress its output; do not write page code before it):
+  node C:\Users\conta\.agents\skills\impeccable\scripts/build-phase.mjs start --direction rsvp-reader-2026 --kind <assigned|pick|challenger|canon> [--chosen <challenger-id>]
+  It records the choice (anonymous: card kind plus catalog id; skipped under DO_NOT_TRACK / IMPECCABLE_NO_TELEMETRY) and opens the build phases: on a comp-led build the comp round is the first gate (three comps, one approved) and no page code is written before it closes; on a code-led build it prints the contract step. A build without this state file is a build the finish reviewer treats as having skipped the round.
+A user- or brief-pinned decision beats the roll, always.
+ASSIGNED INDEX (restated for truncated readers): 5. Build candidate
+5 of your own grounded list; seed key rsvp-reader-2026.
