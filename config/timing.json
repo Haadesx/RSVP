@@ -1,0 +1,43 @@
+{
+  "_comment": "Every timing coefficient, runtime-tunable. Grounding for each is in docs/spec.md section 10. The only direct test of variable dwell against constant dwell found preference, no comprehension gain, and a speed loss - and nothing in 25 years has compared them at matched delivered rate. So every number here is a judgement, and this file is the apparatus for the experiment nobody has run.",
+
+  "target_wpm": 250,
+  "_target_wpm": "Comprehension costs appear at 230-305 DELIVERED wpm in the only dose-response study. Delivered, not nominal.",
+
+  "length_mult": [
+    { "max_chars": 7, "mult": 1.0 },
+    { "max_chars": 13, "mult": 1.15 },
+    { "max_chars": 9999, "mult": 1.3 }
+  ],
+  "_length_mult": "Empirical target is 1.11x (gaze) to 1.36x (adjusted gaze) for an 11- vs 5-letter word. Mechanism note: the extra time is a second FIXATION, not a longer one - first-fixation duration is flat with length. Calibrate against gaze, never first-fixation. Shipped schemes range 1.04x (no-op) to 2.75x (over-corrects ~2x).",
+
+  "numeric_mult": 2.0,
+  "_numeric_mult": "WEAK PROXY. Context-free tokens needed ~2x dwell at matched accuracy, but that is n=6 Italian readers reading random word lists ALOUD with no comprehension measure. Zero direct evidence exists on numerals under RSVP. A factor of two, not five.",
+
+  "pause_comma_ms": 120,
+  "pause_sentence_ms": 320,
+  "pause_paragraph_ms": 500,
+  "_pauses": "Additive, after the word. Sentence-final elevation measures +48 ms gaze and +121 ms regression-path. A boundary pause buys back a regression RSVP forbids, which is why implemented pauses look excessive against first-pass data yet defensible against total-time data.",
+
+  "sentence_len_scale": [
+    { "max_words": 7, "mult": 1.0 },
+    { "max_words": 22, "mult": 2.2 },
+    { "max_words": 9999, "mult": 3.3 }
+  ],
+  "_sentence_len_scale": "Multiplies pause_sentence_ms by the word count of the sentence just ended. Scales with working-memory load rather than punctuation mark. Spritz patent Fig. 5b - published, copied by nobody.",
+
+  "dwell_ceiling_ms": 350,
+  "_dwell_ceiling_ms": "Above this you are inside the 200-330 ms temporal-crowding window and past the point where readers start saccading around a static word. No FLOOR is set on purpose: a floor would silently ignore the user's speed setting.",
+
+  "interword_gap_ms": 0,
+  "_interword_gap_ms": "Exposed rather than hard-coded. A blank interval after an attended item is the one manipulation shown to abolish the attentional blink - but that was letters in a detection task, so transfer to word streams is UNVERIFIED. It also unmasks stream neighbours. Two mechanisms point the same way at near-zero cost.",
+
+  "resume_ramp_ms": 600,
+  "_resume_ramp_ms": "First word after unpause. NO experimental support found anywhere. Candidate mechanisms point in opposite directions. Ship as comfort and label it as comfort.",
+
+  "rewind_backoff_words": 5,
+  "_rewind_backoff_words": "Back 5 words, then walk to the sentence start. Tapping back within the first 5 words of a sentence therefore jumps to the previous sentence. jetzt's rule, the only semantic rewind in the surveyed prior art.",
+
+  "skim_threshold_wpm": 400,
+  "_skim_threshold_wpm": "Above this the UI says Skim, not a reading rate. Detail comprehension collapses to ~53% by 500 wpm and going to 1000 costs nothing further; static text beats RSVP outright at 700 and 1000."
+}

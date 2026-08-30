@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/rsvp/extraction.schema.json",
+  "title": "ExtractionResult",
+  "description": "On-disk extraction cache. The language boundary: written by the Python extraction service on the GPU host, read by the TypeScript reader. Must stay in lockstep with src/contracts/types.ts. Orchestrator-only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["pipelineVersion", "contentHash", "sourceName", "extractedAt", "extractor", "pages", "tokens", "unresolvedPages"],
+  "properties": {
+    "pipelineVersion": { "type": "integer", "minimum": 1 },
+    "contentHash": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "SHA-256 of source file bytes" },
+    "sourceName": { "type": "string" },
+    "extractedAt": { "type": "string", "format": "date-time" },
+    "extractor": { "type": "string", "description": "e.g. pdfjs-dist@6.3.289 or paddleocr-vl-1.6/vllm" },
+
+    "pages": { "type": "array", "items": { "$ref": "#/$defs/pageRecord" } },
+    "tokens": { "type": "array", "items": { "$ref": "#/$defs/token" } },
+    "unresolvedPages": {
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 },
+      "description": "Pages needing extraction that did not get it. Re-runs process only these."
+    }
+  },
+
+  "$defs": {
+    "tier": { "enum": ["tier1", "tier2", "placeholder"] },
+    "boundary": { "enum": ["none", "comma", "sentence", "paragraph"] },
+    "blockLabel": {
+      "enum": ["body", "heading", "list-item", "page-header", "page-footer", "page-number",
+               "caption", "footnote", "reference-entry", "equation", "table", "code"]
+    },
+
+    "token": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text", "pivot", "page", "charStart", "charEnd", "tier", "boundary"],
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "pivot": { "type": "integer", "minimum": 0, "description": "Grapheme index, NOT a UTF-16 code-unit index" },
+        "page": { "type": "integer", "minimum": 1 },
+        "charStart": { "type": "integer", "minimum": 0 },
+        "charEnd": { "type": "integer", "minimum": 0 },
+        "tier": { "$ref": "#/$defs/tier" },
+        "boundary": { "$ref": "#/$defs/boundary" },
+        "numeric": { "type": "boolean" },
+        "continuation": { "type": "boolean", "description": "Fragment of a word split at >13 chars; text carries the connector hyphen" },
+        "placeholder": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "content"],
+          "properties": {
+            "kind": { "oneOf": [{ "$ref": "#/$defs/blockLabel" }, { "const": "unextracted" }] },
+            "content": { "type": ["string", "null"], "description": "null when the page could not be extracted at all" }
+          }
+        }
+      }
+    },
+
+    "pageRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["page", "tier", "escalated", "escalationReasons", "signals", "suspect", "hasDigits", "numericVerified", "text"],
+      "properties": {
+        "page": { "type": "integer", "minimum": 1 },
+        "tier": { "$ref": "#/$defs/tier" },
+        "escalated": { "type": "boolean" },
+        "escalationReasons": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Stage-A gate names and stage-B term names that fired"
+        },
+        "signals": {
+          "type": "object",
+          "description": "Raw classifier signal values, not just booleans - re-calibration must not require re-parsing every PDF",
+          "additionalProperties": { "type": ["number", "string", "boolean", "null"] }
+        },
+        "suspect": { "type": "boolean" },
+        "hasDigits": { "type": "boolean" },
+        "numericVerified": {
+          "type": "boolean",
+          "description": "An independent VISUAL read confirmed the digits. False is the honest default."
+        },
+        "divergence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["digitDelta", "lengthRatio"],
+          "description": "Present only where both tiers ran. Edit distance is deliberately absent - see spec section 6.",
+          "properties": {
+            "digitDelta": { "type": "number", "minimum": 0 },
+            "lengthRatio": { "type": "number", "minimum": 0 }
+          }
+        },
+        "text": { "type": "string", "description": "Normalized page text. Token offsets index into this." }
+      }
+    }
+  }
+}
