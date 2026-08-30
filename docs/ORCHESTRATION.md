@@ -19,8 +19,8 @@ gate status and task accounting only.
 | Gate | Contents | Status |
 |------|----------|--------|
 | 0 | 4 research dossiers + synthesis | **complete** — awaiting your read |
-| 1 | docs/spec.md + src/contracts/ frozen | in progress |
-| 2 | vertical slice, human reads at 400/800 WPM | not started |
+| 1 | docs/spec.md + src/contracts/ frozen | **complete** |
+| 2 | vertical slice, human reads at 400/800 WPM | **complete** — awaiting your read. STOP |
 | 3 | full pipeline on 5 golden PDFs | not started |
 
 ## Task accounting
@@ -52,3 +52,51 @@ and labelled.** The Phase 2 vertical slice is identical under all three options 
 fork changes default rate and numeric routing, not the code), so this does not block.
 The decision lands at Gate 2, where it can be made from reading rather than from
 argument.
+
+## Phase 2 accounting
+
+| Task | Attempts | Outcome |
+|---|---|---|
+| Implement slice | 1 | done. Claimed duration normalization worked; it did not |
+| Independent verify | 1 | done. Caught the ~10% overshoot **and** two tests written around the bug |
+| Gate 2 amendments | 1 | done. Also caught a false claim in spec section 10 |
+| Wire wpm clamp | 1 | done |
+
+4 agents, 0 errors, 0 retries, 0 reassignments, no brief rewritten.
+
+**Orchestrator-verified, not accepted on report:** build clean; 34/34 tests; delivered
+rate exact at 150-1000 wpm; boundary ordering 1218 > 784 > 308 > 202 ms at 250 wpm;
+every token `tier: 'plaintext'`; longest dwell 1.46s at 250 / 8.78s at 100; dev server
+serves `/`, `/sample.txt`, `/src/app/main.ts`, `/src/app/style.css` all 200; path
+ownership clean (workers touched nothing under `src/contracts/`, `config/`, `docs/spec.md`
+or `docs/research/`).
+
+**Process note worth keeping.** The independent-verify stage paid for itself twice. The
+implementer's 24/24 green was real but load-bearing on a test that asserted
+`deliveredWpm > target` — it had pinned the defect as intended behaviour. A self-reporting
+worker would have shipped it. Keep the separate verifier for every phase.
+
+## Contract amendments made at Gate 2
+
+Per the plan, amendments land here or not at all. Three landed, all found by the slice
+hitting reality rather than by review:
+
+1. `word_dwell_ceiling_ms` clamps the word, never the boundary pause.
+2. `boundary: 'paragraph'` implies a sentence end; takes both pauses.
+3. `Tier` gains `'plaintext'`.
+
+Plus `min_wpm` / `max_wpm` added to config, and two corrections to `docs/spec.md`.
+
+## Known gap, deliberately left open
+
+`Boundary` cannot express "a paragraph break that is not a sentence end" — a heading.
+5 tokens in 467 on plain text; conspicuous on a PDF with short headings. The fix belongs
+with the structural pass, which is the component that knows what a heading is. W3 and the
+Phase 4 labeller own it jointly. Recorded in `docs/spec.md` section 7.
+
+## Unassigned task that gates Phase 3
+
+**Collect 30-50 genuinely broken academic pages with known-correct text.** Every classifier
+number in `docs/research/extraction-tier1.md` was measured against *synthetic* corruption
+of clean pages, which the dossier itself calls an optimistic upper bound. W1's five golden
+PDFs are healthy-document regression tests and do not cover this. Nobody owns it.
