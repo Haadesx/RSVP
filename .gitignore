@@ -8,3 +8,4 @@ dist/
 dist/
 .impeccable/review/
 .impeccable/build/
+.seed-out.txt
