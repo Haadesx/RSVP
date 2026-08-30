@@ -1,8 +1,8 @@
 {
   "_comment": "Every timing coefficient, runtime-tunable. Grounding for each is in docs/spec.md section 10. The only direct test of variable dwell against constant dwell found preference, no comprehension gain, and a speed loss - and nothing in 25 years has compared them at matched delivered rate. So every number here is a judgement, and this file is the apparatus for the experiment nobody has run.",
 
-  "target_wpm": 250,
-  "_target_wpm": "Comprehension costs appear at 230-305 DELIVERED wpm in the only dose-response study. Delivered, not nominal.",
+  "target_wpm": 300,
+  "_target_wpm": "Delivered, not nominal. 300 is above the 238 wpm adult non-fiction average (Brysbaert 2019, 190 studies, 18,573 participants) and sits at the top of the band where RSVP was statistically indistinguishable from ordinary reading (Di Nocera, Ricciardi & Juola 2018: no significant difference at 250/300/350, significant loss above). Treat that as a null result from ~35 per cell, not as proof of safety - it conflicts with Acklin & Papesh, where static text beat RSVP outright. The honest framing is a PACER, not a speed multiplier: the only controlled trial of a commercial speed-reading app gained 23%, and a group merely taught to notice their own pace gained 16%.",
 
   "length_mult": [
     { "max_chars": 7, "mult": 1.0 },
@@ -43,5 +43,5 @@
   "_wpm_range": "UI clamp. The floor is 150, not 100, for a measured reason: the word ceiling correctly forbids slowing RSVP by holding words longer (Rahman & Muter - a word left up too long re-invites the eye movements RSVP exists to remove), so below ~150 wpm all remaining budget lands in the boundary pauses. Measured on the Phase 2 fixture: longest single dwell is 1.46s at 250 wpm, 2.04s at 150, and 8.78s at 100. The 150 case is the recommended behaviour; the 100 case is not reading.",
 
   "skim_threshold_wpm": 400,
-  "_skim_threshold_wpm": "Above this the UI says Skim, not a reading rate. Detail comprehension collapses to ~53% by 500 wpm and going to 1000 costs nothing further; static text beats RSVP outright at 700 and 1000."
+  "_skim_threshold_wpm": "Above this the UI says Skim, not a reading rate. NOTE: RSVP at high speed is NOT a skimming tool - Masson 1983 measured it losing to ordinary skimming on the find-the-answer task, F(1,42)=19.61, with the gap WIDENING as rate rose. Real skim mode belongs on document structure, not on this slider. Detail comprehension collapses to ~53% by 500 wpm and going to 1000 costs nothing further; static text beats RSVP outright at 700 and 1000."
 }

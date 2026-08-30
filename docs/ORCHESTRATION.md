@@ -137,3 +137,39 @@ Phase 4 labeller own it jointly. Recorded in `docs/spec.md` section 7.
 number in `docs/research/extraction-tier1.md` was measured against *synthetic* corruption
 of clean pages, which the dossier itself calls an optimistic upper bound. W1's five golden
 PDFs are healthy-document regression tests and do not cover this. Nobody owns it.
+
+## Phase 0b — the subvocalization pass (R5)
+
+Run because the owner's stated mechanism ("we speak the word that I read in our head")
+was never researched in Phase 0, and because they conditioned the marketing pitch on it
+being accurate. 6 agents, 0 errors. Output: `docs/research/reading-speed-mechanisms.md`.
+
+**The premise did not survive.** Articulatory suppression damages comprehension and leaves
+reading speed unchanged; silent reading rate correlates -.03 with maximum articulation
+speed; the ceiling is amodal language throughput (269 wpm reading = 270 wpm listening,
+same people); and RSVP does not remove inner speech anyway.
+
+**Masson 1983 verified from the primary PDF, not the review.** RSVP loses to ordinary
+skimming on recall, on summary accuracy, and worst on find-the-answer (F(1,42)=19.61),
+with the gap WIDENING as rate rises. A cross-experiment RSVP-only comparison
+(.655 vs .421, F(1,42)=25.12) indicts RSVP without using skimming as a baseline at all.
+
+**The constructive half.** Masson notes every earlier study that used inter-sentence
+pauses "failed to find any advantage for skimming over RSVP", and his Exp 5 shows pauses
+improve RSVP against itself (F(1,30)=5.42). Boundary pauses are therefore the single
+highest-leverage feature in the project - which is exactly what the Gate 2 ceiling
+amendment repaired. That fix was worth more than it looked at the time.
+
+The audit found 5 outright link failures (a real citation to a page that does not support
+the claim), withdrew two number sets that could not be recovered, and weakened three of
+four proposed marketing claims.
+
+### Decisions taken
+
+- `target_wpm` 250 -> **300**. Above the 238 wpm adult average, top of the tested parity
+  band. Framed as a pacer, not a speed multiplier.
+- **Skim mode is no longer RSVP-at-high-speed.** It moves onto the structural pass in
+  `docs/spec.md` section 7, which already emits the labels it needs. The current `S` key
+  binding (jump to 450 wpm) is now wrong by the spec and is W4's to replace.
+- Marketing copy is bound by `docs/research/reading-speed-mechanisms.md` section 7. Prior
+  FTC action covers this exact claim class, and the Lumosity order names ADHD by name.

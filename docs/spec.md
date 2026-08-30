@@ -14,15 +14,34 @@ Citations here are shorthand into the dossiers: **[R1]** perception, **[R2]** pr
 A local-first RSVP reader for academic PDFs. Reader runs on a MacBook. A Windows box
 with one RTX 5090 is a separate, optional extraction host reachable over HTTP.
 
-**Product stance (carried into Phase 1, decided at Gate 2).** The replicated finding
-across three labs is that RSVP degrades literal/verbatim comprehension while leaving
-inferential gist intact, and that the damage is done by ~500 wpm [R1]. This is close to
-the opposite of what reading a paper requires. We therefore build the **comprehension
-reader**: default **250 wpm delivered**, boundary pauses, mandatory rewind, numerics
-slowed. Higher rates exist and are labelled **Skim** in the UI, not "fast reading".
+**Product stance — RESOLVED at Gate 2, then revised by [R5].** The owner's goal is to read
+faster and skim more easily, pitched publicly as such, *"if it's accurate enough."* That
+condition turned out to be load-bearing. A fifth research pass
+(`docs/research/reading-speed-mechanisms.md`) tested the premise and it did not survive:
 
-The vertical slice is identical under all three candidate products, so this stance costs
-nothing if it changes at Gate 2.
+- **Subvocalization is not the bottleneck.** Articulatory suppression is the decisive test
+  — occupy the speech machinery and reading comprehension degrades while *speed does not
+  move at all*. Silent reading rate correlates ρ = −.03 with maximum articulation speed.
+- **The ceiling is amodal language throughput**, not eyes and not mouth: 269 wpm reading
+  ≈ 270 wpm listening in the same people on matched texts, breaking down at 315 wpm.
+- **RSVP does not remove inner speech anyway**, and nobody has measured it at app rates.
+- **RSVP loses to ordinary skimming**, verified from the primary source, and loses worst on
+  the find-the-answer task that a skimming tool exists to serve.
+
+**Therefore the product is two features, not one.**
+
+| Feature | Built on | Default | Claim |
+|---|---|---|---|
+| **Read** | RSVP | **300 wpm delivered** | a *pacer* — above the 238 wpm adult average, inside the tested parity band |
+| **Skim** | document **structure** — headings, first sentences, highlights | n/a | information-seeking, *not* RSVP at high speed |
+
+**Skim mode must not be RSVP at 800 wpm.** That is the one configuration measured to be
+worse than just looking at the page. Build it on the structural pass in §7, which already
+produces the labels it needs.
+
+Marketing claims are constrained by prior FTC action against this exact claim class. The
+supportable and unsupportable lists are in `docs/research/reading-speed-mechanisms.md` §7
+and are binding on any copy this project ships.
 
 ---
 
