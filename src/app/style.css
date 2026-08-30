@@ -269,13 +269,14 @@ body {
   padding: 18px 0 clamp(28px, 6vh, 56px);
 }
 .colophon p {
-  /* Regression 1: at 14px against a 15px title, both Literata, the colophon sat at the
-     same optical rank as the catalogue and pulled the first viewport off the rows.
-     11px is the secondary register, shared with .cat-meta. */
+  /* Demoted from the catalogue's rank by WEIGHT, COLOUR and POSITION rather than by
+     size: 400 against the titles' 500, --ink-dim against --ink, and sitting after the
+     primary action instead of above it. Dropping it to 11px did separate the ranks, but
+     11px running prose is too small to read - the detector was right to call it. */
   margin: 0;
   max-width: 58ch;
-  font-size: 11px;
-  line-height: 1.85;
+  font-size: 15px;
+  line-height: 1.7;
   letter-spacing: 0.01em;
   color: var(--ink-dim);
   font-family: var(--text);
