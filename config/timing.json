@@ -24,10 +24,10 @@
     { "max_words": 22, "mult": 2.2 },
     { "max_words": 9999, "mult": 3.3 }
   ],
-  "_sentence_len_scale": "Multiplies pause_sentence_ms by the word count of the sentence just ended. Scales with working-memory load rather than punctuation mark. Spritz patent Fig. 5b - published, copied by nobody.",
+  "_sentence_len_scale": "Multiplies pause_sentence_ms by the word count of the sentence just ended. A boundary of paragraph IMPLIES a sentence end, so a paragraph break gets sentence pause + paragraph pause, not paragraph pause alone. Scales with working-memory load rather than punctuation mark. Spritz patent Fig. 5b - published, copied by nobody.",
 
-  "dwell_ceiling_ms": 350,
-  "_dwell_ceiling_ms": "Above this you are inside the 200-330 ms temporal-crowding window and past the point where readers start saccading around a static word. No FLOOR is set on purpose: a floor would silently ignore the user's speed setting.",
+  "word_dwell_ceiling_ms": 350,
+  "_word_dwell_ceiling_ms": "Ceiling on the WORD component only, NEVER on the boundary pause. Above 350 ms you are inside the 200-330 ms temporal-crowding window and past the point where readers start saccading around a static word - that grounding is about how long one word hangs, not about a deliberate rest. AMENDED at Gate 2: applying it to the total flattened everything. Measured on the fixture at 250 wpm, comma/sentence/paragraph all landed at exactly 350 ms and sentence_len_scale changed 0 of 467 dwells, so the reader got the same pause at a comma as at a paragraph break. No FLOOR is set on purpose: a floor would silently ignore the user's speed setting.",
 
   "interword_gap_ms": 0,
   "_interword_gap_ms": "Exposed rather than hard-coded. A blank interval after an attended item is the one manipulation shown to abolish the attentional blink - but that was letters in a detection task, so transfer to word streams is UNVERIFIED. It also unmasks stream neighbours. Two mechanisms point the same way at near-zero cost.",
@@ -37,6 +37,10 @@
 
   "rewind_backoff_words": 5,
   "_rewind_backoff_words": "Back 5 words, then walk to the sentence start. Tapping back within the first 5 words of a sentence therefore jumps to the previous sentence. jetzt's rule, the only semantic rewind in the surveyed prior art.",
+
+  "min_wpm": 150,
+  "max_wpm": 1000,
+  "_wpm_range": "UI clamp. The floor is 150, not 100, for a measured reason: the word ceiling correctly forbids slowing RSVP by holding words longer (Rahman & Muter - a word left up too long re-invites the eye movements RSVP exists to remove), so below ~150 wpm all remaining budget lands in the boundary pauses. Measured on the Phase 2 fixture: longest single dwell is 1.46s at 250 wpm, 2.04s at 150, and 8.78s at 100. The 150 case is the recommended behaviour; the 100 case is not reading.",
 
   "skim_threshold_wpm": 400,
   "_skim_threshold_wpm": "Above this the UI says Skim, not a reading rate. Detail comprehension collapses to ~53% by 500 wpm and going to 1000 costs nothing further; static text beats RSVP outright at 700 and 1000."

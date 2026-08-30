@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RSVP Reader</title>
+    <link rel="stylesheet" href="/src/app/style.css" />
+  </head>
+  <body>
+    <!-- Fixation zone. Nothing else may render inside .stage during playback. -->
+    <main class="stage">
+      <div class="word" id="word" aria-live="off"></div>
+      <div class="rule" aria-hidden="true"></div>
+    </main>
+
+    <!-- All status lives at the screen edges, far from the pivot. -->
+    <header class="hud hud-top">
+      <span id="wpm">250 wpm</span>
+      <span id="skim" class="skim" hidden>SKIM</span>
+      <span id="delivered" class="muted">delivered —</span>
+    </header>
+    <footer class="hud hud-bottom">
+      <span id="progress">0 / 0</span>
+      <span id="state">paused</span>
+      <span class="muted">space play/pause &middot; &larr; word &middot; shift+&larr; sentence &middot; alt+&larr; paragraph &middot; &uarr;&darr; speed &middot; s skim</span>
+    </footer>
+
+    <script type="module" src="/src/app/main.ts"></script>
+  </body>
+</html>

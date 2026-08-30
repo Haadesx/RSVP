@@ -1,0 +1,83 @@
+:root {
+  color-scheme: dark;
+  --bg: #14161a;
+  --fg: #eceff4;
+  --dim: #7e8794;
+  --pivot: #e0603a;
+  --rule: #2b3038;
+  --word-size: clamp(34px, 7vw, 54px);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* ── Fixation zone. Nothing renders here during playback except the word. ───────── */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+}
+
+.word {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+  width: min(90vw, 900px);
+  font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  font-size: var(--word-size);
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: pre;
+}
+
+.before { text-align: right; min-width: 0; }
+.after  { text-align: left;  min-width: 0; }
+.pivot  { flex-shrink: 0; color: var(--pivot); }
+
+/* A single static hairline under the word. Static and aria-hidden, so it cannot pull a
+   saccade the way a toast or tooltip would; it is a resting mark, not a status area. */
+.rule {
+  width: min(90vw, 900px);
+  height: 1px;
+  margin-top: 0.6em;
+  background: var(--rule);
+}
+
+/* ── Status. Screen edges only, far from the fixation point. ────────────────────── */
+.hud {
+  position: fixed;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.9rem 1.2rem;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.hud-top { top: 0; }
+.hud-bottom { bottom: 0; }
+.hud-bottom .muted { margin-left: auto; text-align: right; }
+.muted { color: #5b6472; }
+
+#wpm, #progress { color: var(--fg); }
+
+.skim {
+  color: #14161a;
+  background: #d8a03a;
+  border-radius: 3px;
+  padding: 0.1rem 0.45rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}

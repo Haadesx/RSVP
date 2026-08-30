@@ -265,6 +265,17 @@ stream. Twelve years later no surveyed project has fixed it [R2].
 words, *"worse than useless"*, and because a caption read aloud with no figure in sight is
 noise [R2].
 
+**Known gap, surfaced at Gate 2 and deliberately left open.** `Boundary` cannot express
+"a paragraph break that is *not* a sentence end" — a heading. The plain-text tokenizer
+stamps `'paragraph'` on the last token before a blank line regardless of terminator, so a
+heading takes a full scaled sentence pause plus the paragraph pause, and
+`sentence_len_scale` counts the heading's own words. On plain text that is 5 tokens in 467
+and invisible. **On a PDF with many short headings it will be conspicuous**, and the fix
+belongs with the structural pass, which is the thing that knows what a heading is: label
+`heading` blocks and let the timing model give them their own pause rather than inferring
+one from punctuation. W3 and the Phase 4 labeller own this jointly. Recorded rather than
+patched now, because patching it before the labeller exists means guessing.
+
 **v1 uses deterministic labelling, not a model.** Headers and footers are recoverable by
 cross-page repetition in the top/bottom bands (normalise, digits → `\d+`, hash, drop lines
 recurring on ≥3 pages or ≥60% of same-parity pages). Captions, equations and tables come
@@ -335,16 +346,47 @@ Every coefficient below lives in `config/timing.json` and is runtime-tunable. Th
 here are the keys there.
 
 ```
-base_ms          = 60000 / target_wpm
+base_ms   = 60000 / target_wpm
 
-raw_i            = base_ms
-                 × length_mult(len_i)
-                 × numeric_mult(token_i)
-                 + boundary_pause_ms(token_i)
+word_i    = base_ms × length_mult(len_i) × numeric_mult(token_i)
+pause_i   = boundary_pause_ms(token_i)          ← 0 when boundary === 'none'
 
-scale            = (n_words × base_ms) / Σ raw_i        ← duration normalization
-dwell_i          = min(raw_i × scale, dwell_ceiling_ms)
+dwell_i(s) = min(word_i × s, word_dwell_ceiling_ms) + pause_i × s
+
+solve s such that  Σ dwell_i(s) = n_words × base_ms      ← duration normalization
 ```
+
+`Σ dwell_i(s)` is monotonic non-decreasing in `s`, so bisection finds it in ~40 iterations.
+
+**Correction, made during the Gate 2 verification:** an earlier draft of this section said
+the target becomes physically unreachable below `60000 / word_dwell_ceiling_ms` (≈171 wpm).
+That was true of the *old* formula and is false of this one — `pause_i × s` is unbounded in
+`s`, so on any punctuated stream an exact solution exists at every rate. The solver must
+still report the achievable rate honestly in the one case where the schedule genuinely
+saturates: a stream with no boundary pauses at all, every word clamped.
+
+**What actually happens at low rates, and why it is correct.** The word ceiling forbids
+slowing RSVP by holding words longer, so the remaining budget lands in the boundary pauses.
+That is exactly the published guidance — *"slower reading in RSVP should be achieved by
+increasing pauses between sentences or by repeating sentences, not by decreasing the
+within-sentence presentation rate"*, because a word left up too long re-invites the eye
+movements RSVP exists to remove [R1]. Measured on the Phase 2 fixture, the longest single
+dwell is 1.46 s at 250 wpm and 2.04 s at 150 wpm — both fine — and **8.78 s at 100 wpm**,
+which is not reading. Hence `min_wpm = 150` in `config/timing.json`. The model degenerating
+below that is honest information, not a defect to paper over.
+
+**AMENDED at Gate 2.** The ceiling was previously applied to the *total*. Measured on the
+Phase 2 fixture at 250 wpm, that put comma, sentence and paragraph dwells all at exactly
+350 ms — the reader got the same pause at a comma as at a paragraph break — and
+`sentence_len_scale` changed **0 of 467 dwells** across the whole 100–400 wpm reading band.
+The 350 ms grounding is about how long a *static word* may hang before the eye starts
+saccading around it; a deliberate between-sentence rest is a different thing and the
+evidence wants it longer. Clamp the word, never the pause.
+
+**`boundary === 'paragraph'` implies a sentence end**, so it takes
+`pause_sentence_ms × sentence_len_scale(...) + pause_paragraph_ms`. Treating them as
+mutually exclusive gave the largest structural break a *shorter* pause than a long
+sentence end.
 
 **Duration normalization is not optional.** Without it, "400 wpm" in the UI delivers
 ~300 wpm, and every shipped implementation surveyed lies by 20–25%. Spritz patented and
@@ -360,7 +402,7 @@ pacing at a rate the app misreports.
 | `pause_sentence_ms` | 320 | sentence-final elevation is **+48 ms gaze, +121 ms regression-path** [R1]; a boundary pause buys back a regression RSVP forbids |
 | `pause_paragraph_ms` | 500 | |
 | `sentence_len_scale` | `≤7 words → 1.0`, `8–22 → 2.2`, `>22 → 3.3` | multiplies `pause_sentence_ms`. Patent Fig. 5b — scales with working-memory load rather than punctuation mark. Published, copied by nobody [R2] |
-| `dwell_ceiling_ms` | **350** | above this you are inside the 200–330 ms temporal-crowding window and past where readers start saccading around a static word [R1] |
+| `word_dwell_ceiling_ms` | **350** | above this you are inside the 200–330 ms temporal-crowding window and past where readers start saccading around a static word [R1]. **Word component only** — see the amendment above |
 | `interword_gap_ms` | 0 | exposed, not hard-coded. A blank interval after an attended item is the one manipulation shown to abolish the attentional blink — **letters and a detection task, so transfer to word streams is UNVERIFIED** [R1] |
 | `resume_ramp_ms` | 600 | first word after unpause. **No experimental support anywhere.** Ship as comfort, label it as comfort [R1] |
 | `rewind_backoff_words` | 5 | jetzt's semantic rewind [R2] |

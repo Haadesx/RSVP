@@ -1,0 +1,38 @@
+The Distributional Hypothesis and Its Discontents
+
+Modern computational semantics rests on an observation the linguist J. R. Firth made in
+1957: you shall know a word by the company it keeps. The claim is deceptively simple. It
+says that the meaning of a word can be approximated, for many practical purposes, from the
+statistical distribution of the contexts in which that word appears, and it implies that a
+sufficiently large corpus contains enough evidence to recover something useful about
+semantics without any explicit representation of the world the words describe. Harris had
+already formalised a version of this in 1954, but it was Firth's phrasing that stuck.
+
+For four decades the hypothesis was interesting and untestable at scale. That changed with
+cheap storage. By the mid-1990s a research group could hold a corpus of 1,234,000 running
+words on a single disk, and latent semantic analysis reported correlations with human
+similarity judgements of roughly 0.60 on standard word-pair sets [12]. Landauer and Dumais
+argued that the method recovered about 91.4% of the vocabulary growth rate of a school-age
+child, a figure that has been disputed ever since. Later work using neural embeddings, most
+visibly the skip-gram model of Mikolov et al., pushed analogy accuracy from 0.28 to 0.60
+on the same benchmark [3,4] while cutting training time by two orders of magnitude. See
+Fig. 3 for the characteristic curve; note the plateau after approximately 300 dimensions.
+
+The counterarguments are older than the successes. Distributional representations are
+notoriously incompressible in one specific sense: they encode co-occurrence, and
+co-occurrence conflates similarity with relatedness. A thermometer and a thermostat share
+contexts. They are not synonyms. Nor does the method distinguish antonyms from synonyms,
+since good and bad occur in nearly identical frames, a failure documented repeatedly and
+never fully repaired (see, e.g., the review at doi:10.1038/nature12373 and the responses it
+provoked). More fundamentally, critics argue that compositionality, the property that makes
+language productive, is not something a bag of contexts can supply; representational
+adequacy for single words says nothing about phrases.
+
+Where does that leave the practitioner? Somewhere pragmatic. A distributional model with
+p<0.001 correlations against human judgement is a useful instrument even if it is a poor
+theory, in much the same way that a barometer was useful for two centuries before anyone
+could explain why the mercury moved. The honest position, and the one taken here, is that
+these representations are measurements of text, not models of meaning, and that the
+difference matters exactly when the text stops being representative of the thing you
+actually wanted to know about. Cf. the discussion in Eq. 7 of the same paper, where the
+error term is 2.5x larger than the authors admit in prose.

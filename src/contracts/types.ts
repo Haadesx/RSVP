@@ -43,10 +43,23 @@ export const DISPOSITION: Readonly<Record<BlockLabel, Disposition>> = {
 // Token stream (§9, §13)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Which extractor produced this token's text. Per-token, per the plan. */
-export type Tier = 'tier1' | 'tier2' | 'placeholder';
+/**
+ * Which extractor produced this token's text. Per-token, per the plan.
+ *
+ * AMENDED at Gate 2: `'plaintext'` added. The Phase 2 slice reads a .txt file and had to
+ * stamp `'tier1'` on tokens no PDF extractor ever touched — a lie about provenance that a
+ * later phase's numeric-fidelity affordance would read as fact.
+ */
+export type Tier = 'plaintext' | 'tier1' | 'tier2' | 'placeholder';
 
-/** What follows this token. Drives the additive boundary pause (§10). */
+/**
+ * What follows this token. Drives the additive boundary pause (§10).
+ *
+ * `'paragraph'` IMPLIES a sentence end — a paragraph break is the larger structure, not a
+ * different one. The timing model therefore applies the sentence pause AND the paragraph
+ * pause at `'paragraph'`. Clarified at Gate 2: the earlier reading gave a paragraph break
+ * a *shorter* pause than a long sentence end, which inverts the structure.
+ */
 export type Boundary = 'none' | 'comma' | 'sentence' | 'paragraph';
 
 /**
@@ -170,8 +183,17 @@ export interface TimingConfig {
   /** Multiplies pause_sentence_ms by the length in words of the sentence just ended. */
   sentence_len_scale: { max_words: number; mult: number }[];
 
-  /** Applied AFTER duration normalization. No floor — a floor would ignore the user. */
-  dwell_ceiling_ms: number;
+  /**
+   * Ceiling on the WORD component only — never on the boundary pause.
+   *
+   * AMENDED at Gate 2. Applying it to the total flattened the whole boundary structure:
+   * measured on the fixture at 250 wpm, comma / sentence / paragraph all landed at 350 ms
+   * and `sentence_len_scale` changed 0 of 467 dwells. The ceiling's grounding is about how
+   * long a *static word* may hang before the eye starts saccading around it; a deliberate
+   * between-sentence rest is a different thing, and the evidence wants it longer, not
+   * shorter. No floor — a floor would silently ignore the user's speed setting.
+   */
+  word_dwell_ceiling_ms: number;
 
   /** Blank interval after each word. Exposed, not hard-coded; justification unverified. */
   interword_gap_ms: number;
@@ -182,6 +204,16 @@ export interface TimingConfig {
 
   /** UI marks rates above this as below the practical recognition floor. */
   skim_threshold_wpm: number;
+
+  /**
+   * UI clamp. `min_wpm` is 150, not 100, and the reason is a real model limit measured at
+   * Gate 2: the word ceiling correctly forbids slowing RSVP by holding words longer, so
+   * below ~150 wpm all the remaining budget lands in the boundary pauses. At 150 that
+   * produces a 2.0 s paragraph rest, which is what the literature recommends; at 100 it
+   * produces an 8.8 s one, which is not reading. Measured on the Phase 2 fixture.
+   */
+  min_wpm: number;
+  max_wpm: number;
 }
 
 export interface TimingInput {
