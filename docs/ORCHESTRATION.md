@@ -53,6 +53,43 @@ fork changes default rate and numeric routing, not the code), so this does not b
 The decision lands at Gate 2, where it can be made from reading rather than from
 argument.
 
+### RESOLVED at Gate 2 by the owner
+
+> "My main target is that I would like to be able to read faster. Right now, the main
+> issue is that we speak the word that I read in our head... We could make this app just
+> to help people read faster and skim through information much more easily. We could
+> advertise it in that way **if it's accurate enough**."
+
+**Product: faster reading + skimming, publicly pitched as such.** That is closer to
+option B (skimmer) than to the comprehension reader assumed in Phase 1.
+
+Two consequences, and one open question that must settle before the defaults move.
+
+1. **Numeric-fidelity work drops in priority.** If the job is triage — "is this paper
+   worth opening properly" — then perfect digits are not the acceptance criterion they
+   were. `docs/spec.md` section 5 stays as written (measure the base rate before building
+   anything), but the CTC verification tier is now clearly out of scope for v1.
+2. **The honest-claim condition is load-bearing.** The owner attached "if it's accurate
+   enough" to the marketing pitch, which makes the accuracy of the claim a requirement,
+   not a nicety.
+
+**Open, and blocking the default-rate change:** the owner's stated mechanism is
+subvocalization — the inner voice as the thing slowing reading down. **Phase 0 never
+researched it.** It covered saccades, fixations, regressions and parafoveal preview, but
+not inner speech. That is a real gap, and it decides whether "read faster" is a
+supportable claim or a marketing one. A focused research pass
+(`docs/research/reading-speed-mechanisms.md`) is running on: whether subvocalization is a
+bottleneck or is load-bearing for comprehension; what actually caps reading rate; whether
+RSVP reduces inner speech at all; and whether RSVP beats ordinary skimming.
+
+That last one is already flagged in `docs/research/rsvp-perception.md`: **Masson 1983
+reportedly found RSVP WORSE than skimming at equal duration** — currently held only
+SECONDHAND via the Rayner 2016 review. If it survives primary verification it aims
+directly at the skimming half of the pitch, so it is being checked against the source.
+
+**Defaults are not being changed until that lands.** Changing `target_wpm` twice is worse
+than changing it once.
+
 ## Phase 2 accounting
 
 | Task | Attempts | Outcome |
